@@ -1,9 +1,11 @@
+import CalculatorResult from "./feature/calculator/CalculatorResult";
+import CalculatorButtons from "./feature/calculator/CalculatorButtons";
+
 const App = () => {
     return (
-        <div>
-            <h1 className="text-3xl font-bold underline text-red-600">
-                Hello World
-            </h1>
+        <div className="calculator bg-black p-3 sm:rounded flex flex-col">
+            <CalculatorResult />
+            <CalculatorButtons />
         </div>
     );
 };
