@@ -109,9 +109,6 @@ export const calculatorSlice = createSlice({
 
             // 運算子在第一位，前面補0
             if (display === "" && formula.length === 0) {
-                // 除法0不能在前
-                if (operator === "/") return;
-
                 // 符號-視為負數開頭，不補0
                 if (operator !== "-") {
                     formula = ["0"];
@@ -120,8 +117,26 @@ export const calculatorSlice = createSlice({
 
             // 前一位是數字，放進公式
             if (hasValue(display)) {
-                formula.push(display);
-                display = "";
+                // .結尾 去除
+                if (display.charAt(display.length - 1) === ".") {
+                    display = display.slice(0, display.length - 1);
+                }
+
+                // 任何數不能除以0 特例處理
+                if (
+                    (display === "0" || display === "-0") &&
+                    formula.length !== 0 &&
+                    formula[formula.length - 1] === "/"
+                ) {
+                    return {
+                        ...state,
+                        formula: [],
+                        display: "Error",
+                    };
+                } else {
+                    formula.push(display);
+                    display = "";
+                }
             }
 
             // 特例處理 前一位是運算子 +-x/ 需替換
@@ -223,8 +238,21 @@ export const calculatorSlice = createSlice({
                     display = display.slice(0, display.length - 1);
                 }
 
-                formula.push(display);
-                display = "";
+                // 任何數不能除以0 特例處理
+                if (
+                    (display === "0" || display === "-0") &&
+                    formula.length !== 0 &&
+                    formula[formula.length - 1] === "/"
+                ) {
+                    return {
+                        ...state,
+                        formula: [],
+                        display: "Error",
+                    };
+                } else {
+                    formula.push(display);
+                    display = "";
+                }
             }
 
             // 特例處理 前一位是運算子 +-x/
