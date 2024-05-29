@@ -7,14 +7,13 @@
 @layer components {
     #root {
         font-family: "Roboto Mono", monospace;
-        min-height: 100vh;
-        min-height: 100dvh;
+        height: 100vh;
+        height: 100dvh;
     }
 
     .calculator {
         width: 100%;
-        min-height: 100vh;
-        min-height: 100dvh;
+        height: 100%;
     }
 
     .calculator__buttons {
@@ -24,7 +23,7 @@
     @media screen(sm) {
         .calculator {
             width: 320px;
-            min-height: initial;
+            height: initial;
         }
 
         .calculator__result {
