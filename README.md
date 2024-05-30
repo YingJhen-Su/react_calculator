@@ -150,11 +150,11 @@ export const isOperator = (str: string): boolean => {
 };
 
 // 處理精度運算
-const getBaseNumber = (num1: number, num2: number): number => {
+const getBaseLength = (num1: number, num2: number): number[] => {
     const num1Digits = (num1.toString().split(".")[1] || "").length;
     const num2Digits = (num2.toString().split(".")[1] || "").length;
 
-    return Math.pow(10, Math.max(num1Digits, num2Digits));
+    return [num1Digits, num2Digits];
 };
 ```
 
@@ -164,6 +164,7 @@ const getBaseNumber = (num1: number, num2: number): number => {
 -   [React TypeScript Cheatsheets](https://react-typescript-cheatsheet.netlify.app/)
 -   [[Js 地下城]計算機(Calculator) — 使用 React Redux 與後序式](https://medium.com/tomsnote/js%E5%9C%B0%E4%B8%8B%E5%9F%8E-%E8%A8%88%E7%AE%97%E6%A9%9F-calculator-%E4%BD%BF%E7%94%A8react-redux%E8%88%87%E5%BE%8C%E5%BA%8F%E5%BC%8F-c360decd3204)
 -   [JavaScript 浮点数陷阱及解法](https://github.com/camsong/blog/issues/9)
+-   [js 加减乘除丢失精度问题及解决方法](https://juejin.cn/post/7154256099426861064)
 
 ## Author
 
