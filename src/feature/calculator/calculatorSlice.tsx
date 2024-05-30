@@ -34,6 +34,9 @@ export const calculatorSlice = createSlice({
                 isEnd = false;
             }
 
+            // 最長10位
+            if (display.length >= 10) return;
+
             // 前一位是運算子(+-x/)且再前一位不是，將運算子放進formula
             // ["2"] "+" "4"
             // ["2", "+"] "-" "4"
@@ -70,16 +73,10 @@ export const calculatorSlice = createSlice({
                     }
             }
 
-            // 過長
-            display += value;
-            if (display.length > 15) {
-                display = "Error";
-            }
-
             // 更新state
             return {
                 formula: [...formula],
-                display: display,
+                display: display + value,
                 isEnd: isEnd,
             };
         },

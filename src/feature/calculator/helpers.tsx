@@ -10,36 +10,68 @@ export const isOperator = (str: string): boolean => {
     return str.length === 1 && reg.test(str);
 };
 
-// 處理精度運算
-const getBaseNumber = (num1: number, num2: number): number => {
-    const num1Digits = (num1.toString().split(".")[1] || "").length;
-    const num2Digits = (num2.toString().split(".")[1] || "").length;
-
-    return Math.pow(10, Math.max(num1Digits, num2Digits));
-};
-
 // 處理長度
 const handleFixed = (num: number): string => {
     let newNum = num.toString();
 
-    if (newNum.length < 16) {
+    if (newNum.length <= 15) {
         return newNum;
     }
 
     const beforeValue = newNum.split(".")[0].length;
     const afterValue = (newNum.split(".")[1] || "").length;
 
-    // 可能超過 Number.MAX_SAFE_INTEGER
-    if (beforeValue > 15) {
+    // 小數位數控管
+    if (afterValue > 0) {
+        // 保留小數空間
+        if (beforeValue > 13) return "Error";
+        newNum = Number(newNum).toFixed(14 - beforeValue);
+    } else {
+        // 不超過15位 Number.MAX_SAFE_INTEGER
         return "Error";
     }
 
-    // 會破版時做小數位數控管
-    if (afterValue > 0) {
-        newNum = Number(newNum).toFixed(15 - beforeValue);
-    }
-
     return newNum;
+};
+
+// 處理精度運算
+const getBaseLength = (num1: number, num2: number): number[] => {
+    const num1Digits = (num1.toString().split(".")[1] || "").length;
+    const num2Digits = (num2.toString().split(".")[1] || "").length;
+
+    return [num1Digits, num2Digits];
+};
+
+// 加法
+const add = (num1: number, num2: number): number => {
+    const baseNum = Math.pow(10, Math.max(...getBaseLength(num1, num2)));
+    return (num1 * baseNum + num2 * baseNum) / baseNum;
+};
+
+// 減法
+const sub = (num1: number, num2: number): number => {
+    const baseNum = Math.pow(10, Math.max(...getBaseLength(num1, num2)));
+    return (num1 * baseNum - num2 * baseNum) / baseNum;
+};
+
+// 乘法
+const mul = (num1: number, num2: number): number => {
+    const [baseLen1, baseLen2] = getBaseLength(num1, num2);
+    return (
+        (Number(num1.toString().replace(".", "")) *
+            Number(num2.toString().replace(".", ""))) /
+        Math.pow(10, baseLen1 + baseLen2)
+    );
+};
+
+// 除法
+const divi = (num1: number, num2: number): number => {
+    const [baseLen1, baseLen2] = getBaseLength(num1, num2);
+    return mul(
+        Number(num1.toString().replace(".", "")) /
+            Number(num2.toString().replace(".", "")),
+        Math.pow(10, baseLen2 - baseLen1)
+    );
 };
 
 // 先乘除後加減
@@ -50,23 +82,19 @@ export const getResult = (formula: string[]) => {
     let prevValue: number = Number(formula[0]);
     let nextValue: number;
     let operatorIndex = 1;
-    let baseNum: number;
     const nextStack: string[] = [];
 
     // 先乘除
     while (operatorIndex < formula.length) {
         if (formula[operatorIndex] === "x" || formula[operatorIndex] === "/") {
             nextValue = Number(formula[operatorIndex + 1]);
-            baseNum = getBaseNumber(prevValue, nextValue);
 
             switch (formula[operatorIndex]) {
                 case "x":
-                    prevValue =
-                        (prevValue * baseNum * (nextValue * baseNum)) /
-                        (baseNum * baseNum);
+                    prevValue = mul(prevValue, nextValue);
                     break;
                 case "/":
-                    prevValue = (prevValue * baseNum) / (nextValue * baseNum);
+                    prevValue = divi(prevValue, nextValue);
                     break;
             }
         } else {
@@ -92,16 +120,13 @@ export const getResult = (formula: string[]) => {
 
     while (operatorIndex < nextStack.length) {
         nextValue = Number(nextStack[operatorIndex + 1]);
-        baseNum = getBaseNumber(prevValue, nextValue);
 
         switch (nextStack[operatorIndex]) {
             case "+":
-                prevValue =
-                    (prevValue * baseNum + nextValue * baseNum) / baseNum;
+                prevValue = add(prevValue, nextValue);
                 break;
             case "-":
-                prevValue =
-                    (prevValue * baseNum - nextValue * baseNum) / baseNum;
+                prevValue = sub(prevValue, nextValue);
                 break;
         }
 
